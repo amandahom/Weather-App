@@ -1,4 +1,4 @@
-export interface DataResults extends Document {
+export interface DataResults {
   name: string
   main: MainResults
   sys: SysResults

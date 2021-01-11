@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import DataResults from '../../types/interface'
+import styles from '../../styles/Main.module.css'
+import { FaSearch } from 'react-icons/fa'
 
 function Main() {
   const [cityInformation, setCityInformation] = useState<CityInformationInterface>()
@@ -26,10 +28,10 @@ function Main() {
     }
   }
 
-  async function getDetails(textInput: string) {
+  async function getDetails(city: string) {
     try {
       const response = await fetch(
-        `http://api.openweathermap.org/data/2.5/weather?q=${textInput}&appid=314c762603e28d1740cdcb0db478d25c&units=standard`,
+        `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=314c762603e28d1740cdcb0db478d25c&units=standard`,
         { mode: 'cors' },
       )
       const data = await response.json()
@@ -43,20 +45,19 @@ function Main() {
   }
 
   function getWeather(data: DataResults) {
-    const cityAndCountry = `${data['name']}, ${data['sys']['country']}`
-    const description = `${data['weather'][0]['description']}`
+    const cityAndCountry: string = `${data['name']}, ${data['sys']['country']}`
+    const description: string = `${data['weather'][0]['description']}`
     const feelsLike: number = parseInt(`${data['main']['feels_like']} `)
     const humidity: number = parseInt(`${data['main']['humidity']}`)
     const temperature: number = parseInt(`${data['main']['temp']}`)
     const wind: number = parseInt(`${data['wind']['speed']}`)
-    const icon = `http://openweathermap.org/img/wn/${data['weather'][0]['icon']}@2x.png`
-    console.log(icon)
+    const icon: string = `http://openweathermap.org/img/wn/${data['weather'][0]['icon']}@2x.png`
 
     // Convert to degrees
-    const feelsLikeCelsius = Math.round(feelsLike - 273.15)
-    const temperatureCelsius = Math.round(temperature - 273.15)
-    const feelsLikeFahrenheit = Math.round((feelsLikeCelsius * 9) / 5) + 32
-    const temperatureFahrenheit = Math.round((temperatureCelsius * 9) / 5) + 32
+    const feelsLikeCelsius: number = Math.round(feelsLike - 273.15)
+    const temperatureCelsius: number = Math.round(temperature - 273.15)
+    const feelsLikeFahrenheit: number = Math.round((feelsLikeCelsius * 9) / 5) + 32
+    const temperatureFahrenheit: number = Math.round((temperatureCelsius * 9) / 5) + 32
 
     return {
       cityAndCountry,
@@ -87,55 +88,76 @@ function Main() {
   }
 
   return (
-    <div className="container">
-      <div className="header">
-        <div className="icon-container">
-          {cityInformation && (
-            <div className="icon">
-              <img src={cityInformation.icon} alt="weather icon" width={100} height={100} />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="content">
-        <div className="generalInfo">
-          <div className="status"></div>
-          <div className="location"></div>
-        </div>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Weather App</h1>
+      <div className="icon-container">
         {cityInformation && (
-          <div className="cityDetails">
-            {cityInformation.cityAndCountry}
-            {cityInformation.description}
+          <div className={styles.icon}>
+            <img src={cityInformation.icon} alt="weather icon" width={100} height={100} />
           </div>
         )}
+      </div>
+
+      <div className={styles.content}>
+        {cityInformation && <div className={styles.cityAndCountry}>{cityInformation.cityAndCountry}</div>}
+        {cityInformation && <div className={styles.cityDescription}>{cityInformation.description}</div>}
+
         {tempInformation && (
           <div className="cityTempDetails">
-            Temperature: {click ? tempInformation.temperatureFahrenheit : tempInformation.temperatureCelsius}
-            {click ? 'F' : 'C'}
-            Feels Like: {click ? tempInformation.feelsLikeFahrenheit : tempInformation.feelsLikeCelsius}
-            {click ? 'F' : 'C'}
-            Humidity: {tempInformation.humidity}% Wind: {tempInformation.wind} mph
+            <div className={styles.cityTemp}>
+              <span className={styles.tempNumber}>
+                {click ? tempInformation.temperatureCelsius : tempInformation.temperatureFahrenheit}
+              </span>
+              <span className={styles.degreeSym}> {click ? 'C' : 'F'}</span>
+            </div>
+            <div className={styles.flexGrid}>
+              <div className={styles.col}>
+                <div className={styles.cityFeels}>
+                  <span className={styles.tempFeelsLike}>
+                    <label className={styles.label}>Feels Like: </label>
+                    {click ? tempInformation.feelsLikeCelsius : tempInformation.feelsLikeFahrenheit}
+                  </span>
+                  <span className={styles.degreeSym}> {click ? 'C' : 'F'}</span>
+                </div>
+              </div>
+              <div className={styles.col}>
+                <div className={styles.cityHumidity}>
+                  <label className={styles.label}>Humidity: </label>
+                  {tempInformation.humidity}%
+                </div>
+              </div>
+              <div className={styles.col}>
+                <div className={styles.cityWind}>
+                  <label className={styles.label}>Wind:</label> {tempInformation.wind} mph
+                </div>
+              </div>
+            </div>
           </div>
         )}
         {/* Display city when typed
         <div>City: {city}</div> */}
+      </div>
+      <div className={styles.searchContainer}>
         <input
+          className={styles.searchBox}
           name="city"
+          placeholder="Enter a location."
           onChange={event => {
             setCity(event.target.value)
             if (event.target.value) {
               setError('')
+            } else {
             }
           }}
         />
-        {error && <span>{error}</span>}
-
-        <button type="button" onClick={onSubmit}>
-          Submit!
+        <button type="button" onClick={onSubmit} className={styles.searchButton}>
+          <FaSearch className={styles.reactIcon} />
         </button>
-        <button type="button" onClick={handleClick}>
-          {click ? 'F' : 'C'}
+      </div>
+      {error && <div className={styles.error}>{error}</div>}
+      <div className={styles.degreeChange}>
+        <button type="button" onClick={handleClick} className={styles.degreeButton}>
+          {click ? 'C' : 'F'}
         </button>
       </div>
     </div>
