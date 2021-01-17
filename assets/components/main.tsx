@@ -141,7 +141,7 @@ function Main() {
         <input
           className={styles.searchBox}
           name="city"
-          placeholder="Enter a location."
+          placeholder="Enter the name of a city."
           onChange={event => {
             setCity(event.target.value)
             if (event.target.value) {
